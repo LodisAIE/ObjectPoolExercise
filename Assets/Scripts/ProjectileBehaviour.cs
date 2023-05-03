@@ -1,3 +1,5 @@
+
+using ObjectPool;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +11,7 @@ public class ProjectileBehaviour : MonoBehaviour
     private float _damage;
     [SerializeField]
     private float _lifeTime;
+    private float _timeSinceSpawn;
     [SerializeField]
     private bool _destroyOnHit;
     [SerializeField]
@@ -23,7 +26,12 @@ public class ProjectileBehaviour : MonoBehaviour
     void Awake()
     {
         RB = GetComponent<Rigidbody>();
-        Destroy(gameObject, _lifeTime);
+        _timeSinceSpawn = Time.time;
+    }
+
+    private void OnEnable()
+    {
+        _timeSinceSpawn = Time.time;
     }
 
     /// <summary>
@@ -61,5 +69,11 @@ public class ProjectileBehaviour : MonoBehaviour
             Destroy(explosionInstance, 0.2f);
             Destroy(gameObject);
         }
+    }
+
+    private void Update()
+    {
+        if (Time.time - _timeSinceSpawn >= _lifeTime)
+            ObjectPoolBehaviour.Instance.ReturnObject(gameObject);  
     }
 }
